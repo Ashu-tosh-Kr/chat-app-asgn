@@ -21,7 +21,7 @@ export default function ChatHeader({}: Props) {
     >
       <Flex gap={2}>
         <Avatar
-          src={`https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=${currentChatUser.username}`}
+          src={`https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=${currentChatUser?.username}`}
         />
         <Flex flexDir={"column"}>
           <Text fontWeight={"bold"}>{currentChatUser?.username}</Text>
