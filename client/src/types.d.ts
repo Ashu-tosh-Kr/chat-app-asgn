@@ -12,10 +12,10 @@ export type UserRegister = Pick<User, "username" | "email"> & {
 export type Message = {
   id?: string;
   sender: string;
-  reciever: string;
+  receiver: string;
   type?: "audio" | "image" | "text";
   message: string;
   messageStatus?: "sent" | "delivered" | "seen";
 };
 
-export type MessageSend = Pick<Message, "sender" | "reciever" | "message">;
+export type MessageSend = Pick<Message, "sender" | "receiver" | "message">;
