@@ -2,7 +2,7 @@ export type User = {
   id: string;
   username: string;
   email: string;
-  password: string;
+  password?: string;
 };
 
 export type UserLogin = Pick<User, "email" | "password">;

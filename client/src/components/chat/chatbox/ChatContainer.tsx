@@ -7,7 +7,7 @@ type Props = {};
 
 export default function ChatContainer({}: Props) {
   return (
-    <Flex w="full" color={"brand.200"} flexDir={"column"}>
+    <Flex w="70%" color={"brand.200"} flexDir={"column"}>
       <ChatHeader />
       <ChatBody />
       <MessageBar />

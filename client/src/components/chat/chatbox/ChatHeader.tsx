@@ -3,10 +3,12 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { MdCall } from "react-icons/md";
 import { IoVideocam } from "react-icons/io5";
 import { BiSearchAlt2 } from "react-icons/bi";
+import { useChatContext } from "../../../pages/Chat";
 
 type Props = {};
 
 export default function ChatHeader({}: Props) {
+  const { currentChatUser } = useChatContext();
   return (
     <Flex
       px={4}
@@ -18,9 +20,11 @@ export default function ChatHeader({}: Props) {
       bg={"brand.500"}
     >
       <Flex gap={2}>
-        <Avatar src="" />
+        <Avatar
+          src={`https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=${currentChatUser.username}`}
+        />
         <Flex flexDir={"column"}>
-          <Text fontWeight={"bold"}>DEMO</Text>
+          <Text fontWeight={"bold"}>{currentChatUser?.username}</Text>
           <Text fontSize={"sm"} color={"brand.300"}>
             Online/Offline
           </Text>

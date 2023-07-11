@@ -2,14 +2,21 @@ import { Box, Divider, Flex } from "@chakra-ui/react";
 import ChatSidebar from "../components/chat/sidebar/ChatSidebar";
 import WelcomeRobo from "../components/chat/WelcomeRobo";
 import ChatContainer from "../components/chat/chatbox/ChatContainer";
+import { createContext, useContext, useState } from "react";
+import { User } from "../types";
 
-type Props = {};
+const ChatContext = createContext<{
+  currentChatUser?: Omit<User, "password">;
+  setCurrentChatUser: (user: Omit<User, "password">) => void;
+}>({ currentChatUser: undefined, setCurrentChatUser: () => {} });
+export const useChatContext = () => useContext(ChatContext);
 
-export default function Chat({}: Props) {
+export default function Chat() {
+  const [currentChatUser, setCurrentChatUser] = useState<User>();
   return (
     <Flex
       bg={"brand.600"}
-      p={5}
+      p={8}
       w="100vw"
       h="100vh"
       justify={"center"}
@@ -23,23 +30,21 @@ export default function Chat({}: Props) {
         w={"full"}
         h={"full"}
       />
-      <Flex
-        boxShadow={"lg"}
-        w="100%"
-        h="100%"
-        bg={"brand.700"}
-        borderRadius={"lg"}
-        overflow={"hidden"}
-        zIndex={1}
-      >
-        <ChatSidebar />
-        <Divider borderColor={"brand.500"} orientation="vertical" />
-        {/* {currentChat === undefined ? ( */}
-        {/* <WelcomeRobo /> */}
-        {/* ) : ( */}
-        <ChatContainer />
-        {/* )} */}
-      </Flex>
+      <ChatContext.Provider value={{ currentChatUser, setCurrentChatUser }}>
+        <Flex
+          boxShadow={"lg"}
+          w="100%"
+          h="100%"
+          bg={"brand.700"}
+          borderRadius={"lg"}
+          overflow={"hidden"}
+          zIndex={1}
+        >
+          <ChatSidebar />
+          <Divider borderColor={"brand.500"} orientation="vertical" />
+          {currentChatUser === undefined ? <WelcomeRobo /> : <ChatContainer />}
+        </Flex>
+      </ChatContext.Provider>
     </Flex>
   );
 }
