@@ -1,5 +1,5 @@
 import express from "express";
-import { currentUser } from "@ashu-org/common";
+import { currentUser } from "../middlewares/current-user";
 import { User, UserAttrs } from "../models/user";
 
 const router = express.Router();
