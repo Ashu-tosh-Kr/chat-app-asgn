@@ -7,7 +7,7 @@ import { User } from "../models/user";
 const router = express.Router();
 
 router.post(
-  "/api/users/signup",
+  "/api/register",
   [
     body("email").isEmail().withMessage("Email must be valid"),
     body("password")
@@ -17,22 +17,20 @@ router.post(
   ],
   validateRequest,
   async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+    const { username, email, password } = req.body;
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
       throw new BadRequestError("User with this email already exists");
     }
-    const user = User.build({ email, password });
+    const user = User.build({ username, email, password });
     await user.save();
     const userJwt = jwt.sign(
       { id: user._id, email: user.email },
       process.env.JWT_KEY!
     );
 
-    req.session = {
-      jwt: userJwt,
-    };
+    res.cookie("jwt", userJwt, { httpOnly: true });
 
     res.status(201).json(user);
   }

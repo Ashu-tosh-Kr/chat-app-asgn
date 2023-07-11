@@ -2,6 +2,7 @@ import { Schema, Model, model, HydratedDocument } from "mongoose";
 import { Password } from "../helpers/password";
 
 interface UserAttrs {
+  username: string;
   email: string;
   password: string;
 }
@@ -12,6 +13,9 @@ interface UserModel extends Model<UserAttrs> {
 
 const userSchema = new Schema<UserAttrs, UserModel>(
   {
+    username: {
+      type: String,
+    },
     email: {
       type: String,
 

@@ -8,7 +8,7 @@ import { User } from "../models/user";
 const router = express.Router();
 
 router.post(
-  "/api/users/signin",
+  "/api/login",
   [
     body("email").isEmail().withMessage("Email must be valid"),
     body("password")
@@ -38,9 +38,7 @@ router.post(
       process.env.JWT_KEY!
     );
 
-    req.session = {
-      jwt: userJwt,
-    };
+    res.cookie("jwt", userJwt, { httpOnly: true });
     res.status(200).json(existingUser);
   }
 );
