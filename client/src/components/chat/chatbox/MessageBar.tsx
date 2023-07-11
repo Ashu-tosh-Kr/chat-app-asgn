@@ -1,7 +1,7 @@
 import { Box, Flex } from "@chakra-ui/react";
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { ImAttachment } from "react-icons/im";
-import InputField from "../formComponents/InputField";
+import InputField from "../../formComponents/InputField";
 import { useForm } from "react-hook-form";
 import { FaMicrophone } from "react-icons/fa";
 import { MdSend } from "react-icons/md";

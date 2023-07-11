@@ -1,7 +1,7 @@
 import { Box, Divider, Flex } from "@chakra-ui/react";
-import ChatList from "../components/chat/ChatList";
+import ChatSidebar from "../components/chat/sidebar/ChatSidebar";
 import WelcomeRobo from "../components/chat/WelcomeRobo";
-import ChatContainer from "../components/chat/ChatContainer";
+import ChatContainer from "../components/chat/chatbox/ChatContainer";
 
 type Props = {};
 
@@ -33,7 +33,7 @@ export default function Chat({}: Props) {
         borderRadius={"lg"}
         overflow={"hidden"}
       >
-        <ChatList />
+        <ChatSidebar />
         <Divider borderColor={"brand.500"} orientation="vertical" />
         {/* {currentChat === undefined ? ( */}
         {/* <WelcomeRobo /> */}
