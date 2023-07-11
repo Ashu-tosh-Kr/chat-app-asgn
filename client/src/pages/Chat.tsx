@@ -6,8 +6,8 @@ import { createContext, useContext, useState } from "react";
 import { User } from "../types";
 
 const ChatContext = createContext<{
-  currentChatUser?: Omit<User, "password">;
-  setCurrentChatUser: (user: Omit<User, "password">) => void;
+  currentChatUser?: User;
+  setCurrentChatUser: (user: User) => void;
 }>({ currentChatUser: undefined, setCurrentChatUser: () => {} });
 export const useChatContext = () => useContext(ChatContext);
 

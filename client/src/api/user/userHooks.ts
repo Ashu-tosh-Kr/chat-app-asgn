@@ -12,7 +12,7 @@ export const useAllUsers = () => {
     isSuccess,
     error,
   } = useQuery<{
-    [key: string]: Omit<User, "password">[];
+    [key: string]: User[];
   }>(
     "allUsers",
     async () => {

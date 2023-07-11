@@ -3,7 +3,7 @@ import { User } from "../../../types";
 import { useChatContext } from "../../../pages/Chat";
 
 type Props = {
-  user: Omit<User, "password">;
+  user: User;
   isContactPage: boolean;
 };
 
