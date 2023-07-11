@@ -1,7 +1,7 @@
 import { Schema, Model, model, HydratedDocument } from "mongoose";
 import { Password } from "../helpers/password";
 
-interface UserAttrs {
+export interface UserAttrs {
   username: string;
   email: string;
   password: string;
@@ -51,6 +51,6 @@ userSchema.statics.build = (attrs: UserAttrs) => {
   return new User<UserAttrs>(attrs);
 };
 
-const User = model<UserAttrs, UserModel>("User", userSchema);
+export const User = model<UserAttrs, UserModel>("User", userSchema);
 
-export { User };
+// export { User };
