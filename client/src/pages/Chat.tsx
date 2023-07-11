@@ -14,7 +14,6 @@ export default function Chat({}: Props) {
       h="100vh"
       justify={"center"}
       align={"center"}
-      zIndex={-2}
     >
       <Box
         backgroundImage="url(/chat-bg.png)"
@@ -23,7 +22,6 @@ export default function Chat({}: Props) {
         position={"absolute"}
         w={"full"}
         h={"full"}
-        zIndex={-1}
       />
       <Flex
         boxShadow={"lg"}
@@ -32,6 +30,7 @@ export default function Chat({}: Props) {
         bg={"brand.700"}
         borderRadius={"lg"}
         overflow={"hidden"}
+        zIndex={1}
       >
         <ChatSidebar />
         <Divider borderColor={"brand.500"} orientation="vertical" />
