@@ -14,9 +14,11 @@ export default function MessageBar() {
     register,
     formState: { errors },
     handleSubmit,
+    reset,
   } = useForm<Pick<MessageSend, "message">>();
+  const { socket } = useChatContext();
 
-  const { mutate } = useSendMessage();
+  const { mutate } = useSendMessage(socket);
   const { currentChatUser } = useChatContext();
   const user: User = JSON.parse(localStorage.getItem("user")!);
 
@@ -26,6 +28,7 @@ export default function MessageBar() {
       sender: user.id,
       receiver: currentChatUser?.id!,
     });
+    reset();
   };
 
   return (

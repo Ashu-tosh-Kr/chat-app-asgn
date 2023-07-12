@@ -1,20 +1,43 @@
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import useErrorHandler from "../../utils/errorHandler";
 import API from "./messageApi";
 import { Message, MessageSend } from "../../types";
+import { Socket } from "socket.io-client";
 
-export const useSendMessage = () => {
+export const useSendMessage = (
+  socket: React.MutableRefObject<Socket | null>
+) => {
   const errorHandler = useErrorHandler();
-
+  const queryClient = useQueryClient();
   const { mutate, isLoading, isSuccess, error } = useMutation(
     async (values: MessageSend) => {
       const api = new API();
+      queryClient.setQueryData(["getMessages", values.receiver], (old: any) => {
+        if (!old) return { messages: [values] };
+        return {
+          messages: [
+            ...old.messages,
+            {
+              ...values,
+              type: "text",
+              createdAt: new Date(),
+              id: Math.random(),
+            },
+          ],
+        };
+      });
       const res = await api.sendMessage(values);
       return res.data;
     },
     {
+      onSuccess: (message) => {
+        socket.current?.emit("message-sent", message);
+      },
       onError: (error) => {
         errorHandler(error);
+      },
+      onSettled: (message) => {
+        queryClient.invalidateQueries(["getMessages", message.receiver]);
       },
     }
   );
@@ -35,6 +58,7 @@ export const useGetMessages = ({
     isLoading,
     isSuccess,
     error,
+    isRefetching,
   } = useQuery<{ messages: Message[] }>(
     ["getMessages", receiver],
     async () => {
@@ -48,5 +72,5 @@ export const useGetMessages = ({
       },
     }
   );
-  return { messages, isLoading, isSuccess, error };
+  return { messages, isLoading, isSuccess, error, isRefetching };
 };

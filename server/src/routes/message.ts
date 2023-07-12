@@ -19,14 +19,14 @@ router.post(
     const { message, sender, receiver } = req.body;
 
     const isUserOnline = await redisClient.sIsMember("onlineUsers", sender);
-    await Message.build({
+    const savedMessage = await Message.build({
       message,
       sender,
       receiver,
       type: "text",
       messageStatus: isUserOnline ? "delivered" : "sent",
     }).save();
-    res.status(201).json({ isUserOnline });
+    res.status(201).json(savedMessage);
   }
 );
 

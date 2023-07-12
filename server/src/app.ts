@@ -1,6 +1,7 @@
 import express from "express";
 import "express-async-errors";
 import * as redis from "redis";
+import http from "http";
 
 import { errorHandler } from "./middlewares/error-handler";
 import { NotFoundError } from "./errors/not-found-error";
@@ -10,8 +11,38 @@ import { signOutRouter } from "./routes/signout";
 import { signUpRouter } from "./routes/signup";
 import cors from "cors";
 import { messageRouter } from "./routes/message";
+import { Server } from "socket.io";
 
 const app = express();
+
+//socket.io
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
+
+io.on("connection", (socket) => {
+  socket.on("user-online", (userId: string) => {
+    redisClient.hSet("usersOnline", userId, socket.id);
+  });
+
+  socket.on("message-sent", async (message) => {
+    const sendUserSocket = await redisClient.hGet(
+      "usersOnline",
+      message.receiver
+    );
+    if (sendUserSocket) {
+      socket
+        .to(sendUserSocket)
+        .emit("message-received", {
+          ...message,
+          createdAt: new Date().toISOString(),
+        });
+    }
+  });
+});
 
 export const redisClient = redis.createClient({
   url: "redis://localhost:6379",
@@ -37,4 +68,4 @@ app.all("*", () => {
 
 app.use(errorHandler);
 
-export { app };
+export { server as app };
