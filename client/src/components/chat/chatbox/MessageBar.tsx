@@ -1,4 +1,4 @@
-import { Box, Flex } from "@chakra-ui/react";
+import { Box, Flex, useBoolean } from "@chakra-ui/react";
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { ImAttachment } from "react-icons/im";
 import InputField from "../../formComponents/InputField";
@@ -8,13 +8,17 @@ import { MdSend } from "react-icons/md";
 import { useSendMessage } from "../../../api/message/messageHooks";
 import { MessageSend, User } from "../../../types";
 import { useChatContext } from "../../../pages/Chat";
+import EmojiPicker from "emoji-picker-react";
 
 export default function MessageBar() {
+  const [isEmojiPickerOpen, setEmojiPickerOpen] = useBoolean(false);
   const {
     register,
     formState: { errors },
     handleSubmit,
     reset,
+    setValue,
+    getValues,
   } = useForm<Pick<MessageSend, "message">>();
   const { socket } = useChatContext();
 
@@ -42,8 +46,23 @@ export default function MessageBar() {
       fontSize={"2xl"}
     >
       <Flex gap={6}>
-        <Box color={"yellow.400"}>
-          <BsEmojiSmileFill cursor={"pointer"} title="Emoji" />
+        <Box color={"yellow.400"} position={"relative"}>
+          <BsEmojiSmileFill
+            onClick={setEmojiPickerOpen.toggle}
+            cursor={"pointer"}
+            title="Emoji"
+          />
+          {isEmojiPickerOpen && (
+            <Box position={"absolute"} bottom={12} left={15} zIndex={5}>
+              <EmojiPicker
+                onEmojiClick={(emoji) =>
+                  setValue("message", getValues("message") + emoji.emoji)
+                }
+                /* @ts-expect-error */
+                theme="dark"
+              />
+            </Box>
+          )}
         </Box>
         <ImAttachment cursor={"pointer"} title="Attach File" />
       </Flex>

@@ -94,16 +94,15 @@ export default function ChatBody() {
             borderRadius={"lg"}
             maxW={"45%"}
             wordBreak={"break-word"}
-            px={1}
+            px={2}
+            pt={1}
             boxShadow={"lg"}
           >
             {message.type === "text" && (
-              <Text color={"brand.200"} px={2} pt={2}>
-                {message.message}
-              </Text>
+              <Text color={"brand.200"}>{message.message}</Text>
             )}
             <Flex justify={"right"} align={"center"}>
-              <Text color={"brand.200"} opacity={0.7} p={1} fontSize={"2xs"}>
+              <Text color={"brand.200"} opacity={0.7} fontSize={"2xs"}>
                 {calculateTime(message.createdAt)}
               </Text>
               <MessageStatus message={message} />
