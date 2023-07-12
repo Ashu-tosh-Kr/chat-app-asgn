@@ -18,6 +18,7 @@ export default function ChatHeader({}: Props) {
       h={16}
       zIndex={10}
       bg={"brand.500"}
+      boxShadow={"lg"}
     >
       <Flex gap={2}>
         <Avatar

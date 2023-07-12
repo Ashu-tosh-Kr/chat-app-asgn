@@ -5,17 +5,29 @@ import InputField from "../../formComponents/InputField";
 import { useForm } from "react-hook-form";
 import { FaMicrophone } from "react-icons/fa";
 import { MdSend } from "react-icons/md";
-type Props = {};
+import { useSendMessage } from "../../../api/message/messageHooks";
+import { MessageSend, User } from "../../../types";
+import { useChatContext } from "../../../pages/Chat";
 
-export default function MessageBar({}: Props) {
+export default function MessageBar() {
   const {
     register,
     formState: { errors },
     handleSubmit,
-  } = useForm();
-  const onSubmit = (data: any) => {
-    console.log(data);
+  } = useForm<Pick<MessageSend, "message">>();
+
+  const { mutate } = useSendMessage();
+  const { currentChatUser } = useChatContext();
+  const user: User = JSON.parse(localStorage.getItem("user")!);
+
+  const onSubmit = (data: Pick<MessageSend, "message">) => {
+    mutate({
+      message: data.message,
+      sender: user.id,
+      receiver: currentChatUser?.id!,
+    });
   };
+
   return (
     <Flex
       bg={"brand.500"}
@@ -32,13 +44,16 @@ export default function MessageBar({}: Props) {
         </Box>
         <ImAttachment cursor={"pointer"} title="Attach File" />
       </Flex>
-      <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        style={{ width: "100%", display: "flex", gap: "1rem" }}
+      >
         <InputField
           w="full"
           register={register("message", {
             required: "Can send empty message",
           })}
-          error={errors.email}
+          error={errors.message}
           type="text"
           placeholder={"Tyep a message..."}
           _focus={{
@@ -47,8 +62,10 @@ export default function MessageBar({}: Props) {
             borderWidth: "2px",
           }}
         />
+        <button type={"submit"}>
+          <MdSend cursor={"pointer"} title="Send Message" />
+        </button>
       </form>
-      <MdSend cursor={"pointer"} title="Send Message" />
       <FaMicrophone cursor={"pointer"} title="Send Message" />
     </Flex>
   );

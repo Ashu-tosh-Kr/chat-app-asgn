@@ -16,6 +16,7 @@ export type Message = {
   type?: "audio" | "image" | "text";
   message: string;
   messageStatus?: "sent" | "delivered" | "seen";
+  createdAt: Date;
 };
 
 export type MessageSend = Pick<Message, "sender" | "receiver" | "message">;
