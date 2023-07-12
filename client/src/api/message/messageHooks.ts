@@ -44,6 +44,59 @@ export const useSendMessage = (
   return { mutate, isLoading, isSuccess, error };
 };
 
+export const useSendImageMessage = (
+  socket: React.MutableRefObject<Socket | null>
+) => {
+  const errorHandler = useErrorHandler();
+  const queryClient = useQueryClient();
+  const {
+    mutate: mutateImage,
+    isLoading,
+    isSuccess,
+    error,
+  } = useMutation(
+    async (values: FormData) => {
+      const api = new API();
+      console.log("helo");
+
+      queryClient.setQueryData(
+        ["getMessages", values.get("receiver")!],
+        (old: any) => {
+          if (!old) return { messages: [values] };
+          return {
+            messages: [
+              ...old.messages,
+              {
+                sender: values.get("sender")!,
+                receiver: values.get("receiver")!,
+                message: "",
+                type: "image",
+
+                createdAt: new Date(),
+                id: Math.random(),
+              },
+            ],
+          };
+        }
+      );
+      const res = await api.sendImageMessage(values);
+      return res.data;
+    },
+    {
+      onSuccess: (message) => {
+        socket.current?.emit("message-sent", message);
+      },
+      onError: (error) => {
+        errorHandler(error);
+      },
+      onSettled: (message) => {
+        queryClient.invalidateQueries(["getMessages", message.receiver]);
+      },
+    }
+  );
+  return { mutateImage, isLoading, isSuccess, error };
+};
+
 export const useGetMessages = ({
   sender,
   receiver,

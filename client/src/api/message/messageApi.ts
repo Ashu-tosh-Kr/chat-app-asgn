@@ -9,10 +9,14 @@ export default class API {
     });
   }
 
-  //auth
   sendMessage(message: MessageSend) {
     return this.instance.post("/send-message", message);
   }
+
+  sendImageMessage(message: FormData) {
+    return this.instance.post("/send-image-message", message);
+  }
+
   getMessages(
     sender: string,
     receiver: string

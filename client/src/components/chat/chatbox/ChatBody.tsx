@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, Image, Text } from "@chakra-ui/react";
 import { useGetMessages } from "../../../api/message/messageHooks";
 import { User } from "../../../types";
 import { useChatContext } from "../../../pages/Chat";
@@ -100,6 +100,17 @@ export default function ChatBody() {
           >
             {message.type === "text" && (
               <Text color={"brand.200"}>{message.message}</Text>
+            )}
+            {message.type === "image" && (
+              <Image
+                h={message.message === "" ? "2rem" : "auto"}
+                src={
+                  message.message === ""
+                    ? "./clock-svgrepo-com.svg"
+                    : `${import.meta.env.VITE_SERVER_URL}/${message.message}`
+                }
+                borderRadius={"lg"}
+              />
             )}
             <Flex justify={"right"} align={"center"}>
               <Text color={"brand.200"} opacity={0.7} fontSize={"2xs"}>

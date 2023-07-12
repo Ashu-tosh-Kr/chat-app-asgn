@@ -2,6 +2,7 @@ import express from "express";
 import "express-async-errors";
 import * as redis from "redis";
 import http from "http";
+import path from "path";
 
 import { errorHandler } from "./middlewares/error-handler";
 import { NotFoundError } from "./errors/not-found-error";
@@ -34,12 +35,10 @@ io.on("connection", (socket) => {
       message.receiver
     );
     if (sendUserSocket) {
-      socket
-        .to(sendUserSocket)
-        .emit("message-received", {
-          ...message,
-          createdAt: new Date().toISOString(),
-        });
+      socket.to(sendUserSocket).emit("message-received", {
+        ...message,
+        createdAt: new Date().toISOString(),
+      });
     }
   });
 });
@@ -55,6 +54,13 @@ export const redisClient = redis.createClient({
 app.set("trust proxy", true);
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+//fetch images
+app.use(
+  "/uploads/images",
+  express.static(path.join(__dirname + "/../uploads/images/"))
+);
 
 app.use(userRouter);
 app.use(signInRouter);

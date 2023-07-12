@@ -5,7 +5,10 @@ import InputField from "../../formComponents/InputField";
 import { useForm } from "react-hook-form";
 import { FaMicrophone } from "react-icons/fa";
 import { MdSend } from "react-icons/md";
-import { useSendMessage } from "../../../api/message/messageHooks";
+import {
+  useSendImageMessage,
+  useSendMessage,
+} from "../../../api/message/messageHooks";
 import { MessageSend, User } from "../../../types";
 import { useChatContext } from "../../../pages/Chat";
 import EmojiPicker from "emoji-picker-react";
@@ -23,6 +26,7 @@ export default function MessageBar() {
   const { socket } = useChatContext();
 
   const { mutate } = useSendMessage(socket);
+  const { mutateImage } = useSendImageMessage(socket);
   const { currentChatUser } = useChatContext();
   const user: User = JSON.parse(localStorage.getItem("user")!);
 
@@ -33,6 +37,21 @@ export default function MessageBar() {
       receiver: currentChatUser?.id!,
     });
     reset();
+  };
+
+  //image upload
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("selectedImage", e.target.files?.[0]);
+
+    if (e.target.files?.[0]) {
+      const formData = new FormData();
+      formData.append("image", e.target.files?.[0]!);
+
+      formData.append("sender", user.id);
+      formData.append("receiver", currentChatUser?.id!);
+
+      mutateImage(formData);
+    }
   };
 
   return (
@@ -64,7 +83,18 @@ export default function MessageBar() {
             </Box>
           )}
         </Box>
-        <ImAttachment cursor={"pointer"} title="Attach File" />
+        <input
+          id="imageInput"
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={(e) => handleUpload(e)}
+        />
+        <ImAttachment
+          onClick={() => document.getElementById("imageInput")!.click()}
+          cursor={"pointer"}
+          title="Attach File"
+        />
       </Flex>
       <form
         onSubmit={handleSubmit(onSubmit)}
