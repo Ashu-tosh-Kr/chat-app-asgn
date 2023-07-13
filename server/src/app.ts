@@ -61,6 +61,11 @@ app.use(
   "/uploads/images",
   express.static(path.join(__dirname + "/../uploads/images/"))
 );
+//fetch audio
+app.use(
+  "/uploads/recordings",
+  express.static(path.join(__dirname + "/../uploads/recordings/"))
+);
 
 app.use(userRouter);
 app.use(signInRouter);

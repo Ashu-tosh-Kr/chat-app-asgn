@@ -57,8 +57,6 @@ export const useSendImageMessage = (
   } = useMutation(
     async (values: FormData) => {
       const api = new API();
-      console.log("helo");
-
       queryClient.setQueryData(
         ["getMessages", values.get("receiver")!],
         (old: any) => {
@@ -95,6 +93,52 @@ export const useSendImageMessage = (
     }
   );
   return { mutateImage, isLoading, isSuccess, error };
+};
+
+export const useSendAudioMessage = (
+  socket: React.MutableRefObject<Socket | null>
+) => {
+  const errorHandler = useErrorHandler();
+  const queryClient = useQueryClient();
+  const { mutate, isLoading, isSuccess, error } = useMutation(
+    async (values: FormData) => {
+      const api = new API();
+      queryClient.setQueryData(
+        ["getMessages", values.get("receiver")!],
+        (old: any) => {
+          if (!old) return { messages: [values] };
+          return {
+            messages: [
+              ...old.messages,
+              {
+                sender: values.get("sender")!,
+                receiver: values.get("receiver")!,
+                message: "",
+                type: "audio",
+
+                createdAt: new Date(),
+                id: Math.random(),
+              },
+            ],
+          };
+        }
+      );
+      const res = await api.sendAudioMessage(values);
+      return res.data;
+    },
+    {
+      onSuccess: (message) => {
+        socket.current?.emit("message-sent", message);
+      },
+      onError: (error) => {
+        errorHandler(error);
+      },
+      onSettled: (message) => {
+        queryClient.invalidateQueries(["getMessages", message.receiver]);
+      },
+    }
+  );
+  return { mutate, isLoading, isSuccess, error };
 };
 
 export const useGetMessages = ({

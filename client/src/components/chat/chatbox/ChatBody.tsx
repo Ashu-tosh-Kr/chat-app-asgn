@@ -6,6 +6,7 @@ import { calculateTime } from "../../../utils/CalculateTime";
 import MessageStatus from "./MessageStatus";
 import { useEffect } from "react";
 import { useQueryClient } from "react-query";
+import VoiceMessage from "./VoiceMessage";
 
 export default function ChatBody() {
   const { currentChatUser, socket } = useChatContext();
@@ -112,6 +113,7 @@ export default function ChatBody() {
                 borderRadius={"lg"}
               />
             )}
+            {message.type === "audio" && <VoiceMessage message={message} />}
             <Flex justify={"right"} align={"center"}>
               <Text color={"brand.200"} opacity={0.7} fontSize={"2xs"}>
                 {calculateTime(message.createdAt)}

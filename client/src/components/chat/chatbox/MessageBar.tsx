@@ -12,9 +12,11 @@ import {
 import { MessageSend, User } from "../../../types";
 import { useChatContext } from "../../../pages/Chat";
 import EmojiPicker from "emoji-picker-react";
+import CaptureAudio from "./CaptureAudio";
 
 export default function MessageBar() {
   const [isEmojiPickerOpen, setEmojiPickerOpen] = useBoolean(false);
+  const [showAudioRecorder, setShowAudioRecorder] = useBoolean(false);
   const {
     register,
     formState: { errors },
@@ -64,61 +66,71 @@ export default function MessageBar() {
       pos={"relative"}
       fontSize={"2xl"}
     >
-      <Flex gap={6}>
-        <Box color={"yellow.400"} position={"relative"}>
-          <BsEmojiSmileFill
-            onClick={setEmojiPickerOpen.toggle}
-            cursor={"pointer"}
-            title="Emoji"
-          />
-          {isEmojiPickerOpen && (
-            <Box position={"absolute"} bottom={12} left={15} zIndex={5}>
-              <EmojiPicker
-                onEmojiClick={(emoji) =>
-                  setValue("message", getValues("message") + emoji.emoji)
-                }
-                /* @ts-expect-error */
-                theme="dark"
+      {showAudioRecorder ? (
+        <CaptureAudio setShowCaptureAudio={setShowAudioRecorder} />
+      ) : (
+        <>
+          <Flex gap={6}>
+            <Box color={"yellow.400"} position={"relative"}>
+              <BsEmojiSmileFill
+                onClick={setEmojiPickerOpen.toggle}
+                cursor={"pointer"}
+                title="Emoji"
               />
+              {isEmojiPickerOpen && (
+                <Box position={"absolute"} bottom={12} left={15} zIndex={5}>
+                  <EmojiPicker
+                    onEmojiClick={(emoji) =>
+                      setValue("message", getValues("message") + emoji.emoji)
+                    }
+                    /* @ts-expect-error */
+                    theme="dark"
+                  />
+                </Box>
+              )}
             </Box>
-          )}
-        </Box>
-        <input
-          id="imageInput"
-          type="file"
-          accept="image/*"
-          style={{ display: "none" }}
-          onChange={(e) => handleUpload(e)}
-        />
-        <ImAttachment
-          onClick={() => document.getElementById("imageInput")!.click()}
-          cursor={"pointer"}
-          title="Attach File"
-        />
-      </Flex>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        style={{ width: "100%", display: "flex", gap: "1rem" }}
-      >
-        <InputField
-          w="full"
-          register={register("message", {
-            required: "Can send empty message",
-          })}
-          error={errors.message}
-          type="text"
-          placeholder={"Tyep a message..."}
-          _focus={{
-            bg: "brand.700",
-            borderColor: "brand.300",
-            borderWidth: "2px",
-          }}
-        />
-        <button type={"submit"}>
-          <MdSend cursor={"pointer"} title="Send Message" />
-        </button>
-      </form>
-      <FaMicrophone cursor={"pointer"} title="Send Message" />
+            <input
+              id="imageInput"
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => handleUpload(e)}
+            />
+            <ImAttachment
+              onClick={() => document.getElementById("imageInput")!.click()}
+              cursor={"pointer"}
+              title="Attach File"
+            />
+          </Flex>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            style={{ width: "100%", display: "flex", gap: "1rem" }}
+          >
+            <InputField
+              w="full"
+              register={register("message", {
+                required: "Can send empty message",
+              })}
+              error={errors.message}
+              type="text"
+              placeholder={"Tyep a message..."}
+              _focus={{
+                bg: "brand.700",
+                borderColor: "brand.300",
+                borderWidth: "2px",
+              }}
+            />
+            <button type={"submit"}>
+              <MdSend cursor={"pointer"} title="Send Message" />
+            </button>
+          </form>
+          <FaMicrophone
+            onClick={setShowAudioRecorder.on}
+            cursor={"pointer"}
+            title="Send Message"
+          />
+        </>
+      )}
     </Flex>
   );
 }

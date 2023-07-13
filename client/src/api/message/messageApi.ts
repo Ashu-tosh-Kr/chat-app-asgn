@@ -17,6 +17,10 @@ export default class API {
     return this.instance.post("/send-image-message", message);
   }
 
+  sendAudioMessage(message: FormData) {
+    return this.instance.post("/send-audio-message", message);
+  }
+
   getMessages(
     sender: string,
     receiver: string
