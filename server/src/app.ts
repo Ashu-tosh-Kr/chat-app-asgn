@@ -41,6 +41,27 @@ io.on("connection", (socket) => {
       });
     }
   });
+
+  socket.on("outgoing-voice-call", async (data) => {
+    const sendUserSocket = await redisClient.hGet("usersOnline", data.to);
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit("incoming-voice-call", {
+        from: data.from,
+        roomId: data.roomId,
+        callType: data.callType,
+      });
+    }
+    socket.on("outgoing-video-call", async (data) => {
+      const sendUserSocket = await redisClient.hGet("usersOnline", data.to);
+      if (sendUserSocket) {
+        socket.to(sendUserSocket).emit("incoming-video-call", {
+          from: data.from,
+          roomId: data.roomId,
+          callType: data.callType,
+        });
+      }
+    });
+  });
 });
 
 export const redisClient = redis.createClient({
