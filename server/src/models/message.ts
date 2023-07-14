@@ -1,18 +1,21 @@
 import { Schema, Model, model, HydratedDocument } from "mongoose";
+import { User } from "./user";
 
 export interface MessageAttrs {
+  id?: string;
   sender: typeof Schema.Types.ObjectId;
   receiver: typeof Schema.Types.ObjectId;
   type: "audio" | "image" | "text";
   message: string;
   messageStatus: "sent" | "delivered" | "seen";
+  createdAt?: Date;
 }
 
 interface MessageModel extends Model<MessageAttrs> {
   build(attrs: MessageAttrs): HydratedDocument<MessageAttrs>;
 }
 
-const userSchema = new Schema<MessageAttrs, MessageModel>(
+export const messageSchema = new Schema<MessageAttrs, MessageModel>(
   {
     sender: {
       type: Schema.Types.ObjectId,
@@ -45,17 +48,35 @@ const userSchema = new Schema<MessageAttrs, MessageModel>(
       transform(doc, ret) {
         ret.id = ret._id;
         delete ret._id;
-        delete ret.password;
         delete ret.__v;
       },
     },
   }
 );
 
-userSchema.statics.build = (attrs: MessageAttrs) => {
+// messageSchema.post("save", async function (doc) {
+//   const sender = await User.findById(doc.sender);
+//   const receiver = await User.findById(doc.receiver);
+//   if (sender && receiver) {
+//     console.log(sender.sentMessages);
+//     console.log(receiver.receivedMessages);
+//     console.log(doc);
+//     console.log("end");
+
+//     sender.sentMessages?.push(doc);
+//     receiver.receivedMessages?.push(doc);
+//     await sender.save();
+//     await receiver.save();
+//   }
+// });
+
+messageSchema.statics.build = (attrs: MessageAttrs) => {
   return new Message<MessageAttrs>(attrs);
 };
 
-export const Message = model<MessageAttrs, MessageModel>("Message", userSchema);
+export const Message = model<MessageAttrs, MessageModel>(
+  "Message",
+  messageSchema
+);
 
 // export { Message };

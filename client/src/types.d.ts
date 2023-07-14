@@ -20,3 +20,23 @@ export type Message = {
 };
 
 export type MessageSend = Pick<Message, "sender" | "receiver" | "message">;
+
+export type VideoCallType =
+  | Partial<
+      User & {
+        type: string;
+        callType: "video";
+        roomId: number;
+      }
+    >
+  | undefined;
+
+export type VoiceCallType =
+  | Partial<
+      User & {
+        type: string;
+        callType: "voice";
+        roomId: number;
+      }
+    >
+  | undefined;

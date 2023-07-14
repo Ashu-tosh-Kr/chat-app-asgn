@@ -65,6 +65,7 @@ export default function MessageBar() {
       gap={6}
       pos={"relative"}
       fontSize={"2xl"}
+      borderBottomRightRadius={"lg"}
     >
       {showAudioRecorder ? (
         <CaptureAudio setShowCaptureAudio={setShowAudioRecorder} />

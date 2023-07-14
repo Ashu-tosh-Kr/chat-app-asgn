@@ -1,12 +1,13 @@
 import { Schema, Model, model, HydratedDocument } from "mongoose";
 import { Password } from "../helpers/password";
+import { Message, MessageAttrs, messageSchema } from "./message";
 
 export interface UserAttrs {
   username: string;
   email: string;
   password: string;
-  sentMessage?: (typeof Schema.Types.ObjectId)[];
-  recievedMessage?: (typeof Schema.Types.ObjectId)[];
+  sentMessages?: MessageAttrs[];
+  receivedMessages?: MessageAttrs[];
 }
 
 interface UserModel extends Model<UserAttrs> {
@@ -27,20 +28,15 @@ const userSchema = new Schema<UserAttrs, UserModel>(
       type: String,
       required: true,
     },
-    sentMessage: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Message",
-        default: [],
-      },
-    ],
-    recievedMessage: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Message",
-        default: [],
-      },
-    ],
+    sentMessages: {
+      type: [Message.schema],
+      default: [],
+    },
+
+    receivedMessages: {
+      type: [Message.schema],
+      default: [],
+    },
   },
   {
     // toJSON allows us to change the response of the user object when we send it back to the client, this way we can convert _id to id and remove password

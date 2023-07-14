@@ -8,7 +8,25 @@ import { useChatContext } from "../../../pages/Chat";
 type Props = {};
 
 export default function ChatHeader({}: Props) {
-  const { currentChatUser } = useChatContext();
+  const { currentChatUser, setVoiceCall, setVideoCall } = useChatContext();
+
+  const handleVoiceCall = () => {
+    setVoiceCall({
+      ...currentChatUser,
+      type: "out-going",
+      callType: "voice",
+      roomId: Date.now(),
+    });
+  };
+
+  const handleVideoCall = () => {
+    setVideoCall({
+      ...currentChatUser,
+      type: "out-going",
+      callType: "video",
+      roomId: Date.now(),
+    });
+  };
   return (
     <Flex
       px={4}
@@ -19,6 +37,7 @@ export default function ChatHeader({}: Props) {
       zIndex={10}
       bg={"brand.500"}
       boxShadow={"lg"}
+      borderTopRightRadius={"lg"}
     >
       <Flex gap={2}>
         <Avatar
@@ -32,9 +51,13 @@ export default function ChatHeader({}: Props) {
         </Flex>
       </Flex>
       <Flex fontSize={"2xl"} gap={6}>
-        <MdCall cursor={"pointer"} />
+        <MdCall cursor={"pointer"} onClick={handleVoiceCall} />
         <Box color={"red.400"}>
-          <IoVideocam cursor={"pointer"} color={"red.50"} />
+          <IoVideocam
+            cursor={"pointer"}
+            color={"red.50"}
+            onClick={handleVideoCall}
+          />
         </Box>
         <BiSearchAlt2 cursor={"pointer"} />
         <BsThreeDotsVertical cursor={"pointer"} />

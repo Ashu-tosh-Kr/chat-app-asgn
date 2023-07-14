@@ -1,17 +1,26 @@
-import { Avatar, Divider, Flex, Text } from "@chakra-ui/react";
+import { Avatar, Badge, Divider, Flex, Text } from "@chakra-ui/react";
 import { User } from "../../../types";
 import { useChatContext } from "../../../pages/Chat";
 
 type Props = {
   user: User;
-  isContactPage: boolean;
+  isContactPage?: boolean;
+  lastMsg?: string;
+  unreadCount?: number;
 };
 
-export default function ChatListItem({ user, isContactPage = false }: Props) {
+export default function ChatListItem({
+  user,
+  lastMsg,
+  unreadCount,
+  isContactPage = false,
+}: Props) {
   const { setCurrentChatUser } = useChatContext();
+
   return (
     <>
       <Flex
+        position={"relative"}
         cursor={"pointer"}
         align={"center"}
         _hover={{ bg: "brand.700" }}
@@ -23,9 +32,20 @@ export default function ChatListItem({ user, isContactPage = false }: Props) {
           src={`https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=${user.username}`}
           name={user.username}
         />
-        <Flex flexDir={"column"} justify={"space-between"}>
+        <Flex flexDir={"column"} justify={"space-between"} color={"brand.200"}>
           <Text>{user.username}</Text>
+          {!isContactPage && <Text fontSize={"sm"}>{lastMsg}</Text>}
         </Flex>
+        {unreadCount && (
+          <Badge
+            position={"absolute"}
+            right={2}
+            bottom={2}
+            colorScheme="purple"
+          >
+            {unreadCount}
+          </Badge>
+        )}
       </Flex>
       <Divider borderColor={"brand.500"} />
     </>

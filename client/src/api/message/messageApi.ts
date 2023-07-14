@@ -27,4 +27,9 @@ export default class API {
   ): AxiosResponse<{ messages: Message[] }> {
     return this.instance.get(`/get-messages/${sender}/${receiver}`);
   }
+
+  getInitialContacts() {
+    const user = JSON.parse(localStorage.getItem("user")!);
+    return this.instance.get(`/get-initial-contacts/${user.id}`);
+  }
 }

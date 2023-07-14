@@ -171,3 +171,22 @@ export const useGetMessages = ({
   );
   return { messages, isLoading, isSuccess, error, isRefetching };
 };
+
+export const useGetInitialContacts = () => {
+  const errorHandler = useErrorHandler();
+
+  const { data, isLoading, isSuccess, error, isRefetching } = useQuery(
+    ["getInitialContacts"],
+    async () => {
+      const api = new API();
+      const res = await api.getInitialContacts();
+      return res.data;
+    },
+    {
+      onError: (error) => {
+        errorHandler(error);
+      },
+    }
+  );
+  return { data, isLoading, isSuccess, error, isRefetching };
+};

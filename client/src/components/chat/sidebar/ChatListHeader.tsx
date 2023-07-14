@@ -19,6 +19,7 @@ export default function ChatListHeader({ setContactOpen }: Props) {
       justify={"space-between"}
       align={"center"}
       bg={"brand.500"}
+      borderTopLeftRadius={"lg"}
     >
       <Avatar
         src={`https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=${user.username}`}
