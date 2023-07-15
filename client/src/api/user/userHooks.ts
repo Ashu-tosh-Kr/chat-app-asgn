@@ -52,3 +52,29 @@ export const useCurrentUser = () => {
   );
   return { curUser, isLoading, isSuccess, error };
 };
+
+export const useGetToken = (callAccepted: boolean) => {
+  const errorHandler = useErrorHandler();
+
+  const {
+    data: token,
+    isLoading,
+    isSuccess,
+    error,
+  } = useQuery(
+    "token",
+    async () => {
+      const api = new API();
+      const res = await api.getToken();
+      return res.data;
+    },
+
+    {
+      enabled: callAccepted,
+      onError: (error) => {
+        errorHandler(error);
+      },
+    }
+  );
+  return { token, isLoading, isSuccess, error };
+};
