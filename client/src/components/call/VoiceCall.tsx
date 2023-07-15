@@ -1,11 +1,14 @@
 import { useChatContext } from "../../pages/Chat";
+import { VoiceCallType } from "../../types";
 import CallContainer from "./CallContainer";
 import { useEffect } from "react";
 
-type Props = {};
+type Props = {
+  voiceCall: NonNullable<VoiceCallType>;
+};
 
-export default function VoiceCall({}: Props) {
-  const { socket, voiceCall } = useChatContext();
+export default function VoiceCall({ voiceCall }: Props) {
+  const { socket } = useChatContext();
   const user = JSON.parse(localStorage.getItem("user")!);
 
   useEffect(() => {

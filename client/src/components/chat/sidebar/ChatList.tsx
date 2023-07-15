@@ -7,7 +7,6 @@ type Props = {};
 export default function ChatList({}: Props) {
   const { data, isLoading } = useGetInitialContacts();
   if (isLoading) return <div>Loading...</div>;
-  console.log(data);
 
   return (
     <Flex

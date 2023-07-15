@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Avatar, Box, Flex, Heading, Text } from "@chakra-ui/react";
 import { useChatContext } from "../../pages/Chat";
-import { VideoCallType, VoiceCallType } from "../../types";
+import {
+  ChatContextTypeInsideChatContainer,
+  VideoCallType,
+  VoiceCallType,
+} from "../../types";
 import { MdOutlineCallEnd } from "react-icons/md";
 
 type Props = {
@@ -9,10 +13,20 @@ type Props = {
 };
 
 export default function CallContainer({ data }: Props) {
-  const { currentChatUser, setVideoCall, setVoiceCall } = useChatContext();
+  const { currentChatUser, setVideoCall, setVoiceCall, socket } =
+    useChatContext() as ChatContextTypeInsideChatContainer;
   const [callAccepted, setCallAccepted] = useState();
 
   const endCall = () => {
+    if (data?.callType === "voice")
+      socket.current?.emit("reject-voice-call", {
+        from: data?.id,
+      });
+
+    if (data?.callType === "video")
+      socket.current?.emit("reject-video-call", {
+        from: data?.id,
+      });
     setVideoCall(undefined);
     setVoiceCall(undefined);
   };
@@ -41,7 +55,7 @@ export default function CallContainer({ data }: Props) {
         justify={"space-between"}
         align={"center"}
       >
-        <Heading>{currentChatUser?.username}</Heading>
+        <Heading>{currentChatUser.username}</Heading>
         <Text>
           {callAccepted && data?.callType !== "video"
             ? "On Going Call"
@@ -50,10 +64,10 @@ export default function CallContainer({ data }: Props) {
       </Flex>
       {(!callAccepted || data?.callType === "voice") && (
         <Avatar
-          src={`https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=${currentChatUser?.username}`}
+          src={`https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=${currentChatUser.username}`}
           h={"20rem"}
           w={"20rem"}
-          name={currentChatUser?.username}
+          name={currentChatUser.username}
         />
       )}
       <Flex

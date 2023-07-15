@@ -1,6 +1,10 @@
 import { Box, Flex, Image, Text } from "@chakra-ui/react";
 import { useGetMessages } from "../../../api/message/messageHooks";
-import { User } from "../../../types";
+import {
+  ChatContextTypeInsideChatContainer,
+  Message,
+  User,
+} from "../../../types";
 import { useChatContext } from "../../../pages/Chat";
 import { calculateTime } from "../../../utils/CalculateTime";
 import MessageStatus from "./MessageStatus";
@@ -9,19 +13,18 @@ import { useQueryClient } from "react-query";
 import VoiceMessage from "./VoiceMessage";
 
 export default function ChatBody() {
-  const { currentChatUser, socket } = useChatContext();
+  const { currentChatUser, socket } =
+    useChatContext() as ChatContextTypeInsideChatContainer;
   const user: User = JSON.parse(localStorage.getItem("user")!);
   const queryClient = useQueryClient();
 
   const { messages, isLoading } = useGetMessages({
     sender: user.id,
-    receiver: currentChatUser?.id!,
+    receiver: currentChatUser.id,
   });
 
   useEffect(() => {
-    socket.current?.on("message-received", (data) => {
-      console.log("data", data);
-
+    socket.current?.on("message-received", (data: Message) => {
       queryClient.setQueryData(["getMessages", data.sender], (old: any) => {
         if (!old) return { messages: [data] };
         return {

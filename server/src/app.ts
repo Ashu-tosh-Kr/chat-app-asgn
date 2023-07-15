@@ -28,6 +28,10 @@ io.on("connection", (socket) => {
   socket.on("user-online", (userId: string) => {
     redisClient.hSet("usersOnline", userId, socket.id);
   });
+  socket.on("user-offline", (userId: string) => {
+    redisClient.hDel("usersOnline", userId);
+    socket.emit("is-user-online", { userId: false });
+  });
 
   socket.on("message-sent", async (message) => {
     const sendUserSocket = await redisClient.hGet(
@@ -51,16 +55,35 @@ io.on("connection", (socket) => {
         callType: data.callType,
       });
     }
-    socket.on("outgoing-video-call", async (data) => {
-      const sendUserSocket = await redisClient.hGet("usersOnline", data.to);
-      if (sendUserSocket) {
-        socket.to(sendUserSocket).emit("incoming-video-call", {
-          from: data.from,
-          roomId: data.roomId,
-          callType: data.callType,
-        });
-      }
-    });
+  });
+
+  socket.on("outgoing-video-call", async (data) => {
+    const sendUserSocket = await redisClient.hGet("usersOnline", data.to);
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit("incoming-video-call", {
+        from: data.from,
+        roomId: data.roomId,
+        callType: data.callType,
+      });
+    }
+  });
+  socket.on("reject-voice-call", async (data) => {
+    const sendUserSocket = await redisClient.hGet("usersOnline", data.from);
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit("voice-call-rejected");
+    }
+  });
+  socket.on("reject-video-call", async (data) => {
+    const sendUserSocket = await redisClient.hGet("usersOnline", data.from);
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit("video-call-rejected");
+    }
+  });
+  socket.on("accept-incoming-call", async ({ id }) => {
+    const sendUserSocket = await redisClient.hGet("usersOnline", id);
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit("accept-call");
+    }
   });
 });
 

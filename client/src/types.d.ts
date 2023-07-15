@@ -40,3 +40,37 @@ export type VoiceCallType =
       }
     >
   | undefined;
+
+export type IncomingVoiceCallType =
+  | {
+      callType: "voice";
+      roomId: number;
+      id: string;
+      profilePicture: string;
+      name: string;
+    }
+  | undefined;
+
+export type IncomingVideoCallType =
+  | {
+      callType: "video";
+      roomId: number;
+      id: string;
+      profilePicture: string;
+      name: string;
+    }
+  | undefined;
+
+export type ChatContextType = {
+  currentChatUser?: Pick<User, "id" | "username">;
+  setCurrentChatUser: (user: Pick<User, "id" | "username">) => void;
+  socket: React.MutableRefObject<Socket | null>;
+  setVoiceCall: (videoCall: VoiceCallType) => void;
+  setVideoCall: (voiceCall: VideoCallType) => void;
+  setIncomingVideoCall: (incomingVideoCall: IncomingVideoCallType) => void;
+  setIncomingVoiceCall: (incomingVoiceCall: IncomingVoiceCallType) => void;
+};
+
+export type ChatContextTypeInsideChatContainer = ChatContextType & {
+  currentChatUser: User;
+};
