@@ -25,12 +25,16 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  socket.on("user-online", (userId: string) => {
-    redisClient.hSet("usersOnline", userId, socket.id);
+  socket.on("user-online", async (userId: string) => {
+    await redisClient.hSet("usersOnline", userId, socket.id);
+    const onlineUsers = await redisClient.hGetAll("usersOnline");
+    io.emit("is-user-online", Object.keys(onlineUsers));
   });
-  socket.on("user-offline", (userId: string) => {
-    redisClient.hDel("usersOnline", userId);
-    socket.emit("is-user-online", { userId: false });
+
+  socket.on("user-offline", async (userId: string) => {
+    await redisClient.hDel("usersOnline", userId);
+    const onlineUsers = await redisClient.hGetAll("usersOnline");
+    io.emit("is-user-online", Object.keys(onlineUsers));
   });
 
   socket.on("message-sent", async (message) => {

@@ -1,14 +1,30 @@
+import { useState, useEffect } from "react";
 import { Avatar, Box, Flex, Text } from "@chakra-ui/react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { MdCall } from "react-icons/md";
 import { IoVideocam } from "react-icons/io5";
 import { BiSearchAlt2 } from "react-icons/bi";
 import { useChatContext } from "../../../pages/Chat";
+import { ChatContextTypeInsideChatContainer } from "../../../types";
 
 type Props = {};
 
 export default function ChatHeader({}: Props) {
-  const { currentChatUser, setVoiceCall, setVideoCall } = useChatContext();
+  const { socket, currentChatUser, setVoiceCall, setVideoCall } =
+    useChatContext() as ChatContextTypeInsideChatContainer;
+  const [isOnline, setIsOnline] = useState(false);
+
+  useEffect(() => {
+    socket.current?.on("is-user-online", (data: string[]) => {
+      if (data.includes(currentChatUser.id)) {
+        setIsOnline(true);
+      } else setIsOnline(false);
+    });
+
+    return () => {
+      socket.current?.off("message-received");
+    };
+  }, [socket.current]);
 
   const handleVoiceCall = () => {
     setVoiceCall({
@@ -45,8 +61,8 @@ export default function ChatHeader({}: Props) {
         />
         <Flex flexDir={"column"}>
           <Text fontWeight={"bold"}>{currentChatUser?.username}</Text>
-          <Text fontSize={"sm"} color={"brand.300"}>
-            Online/Offline
+          <Text fontSize={"sm"} color={isOnline ? "green.400" : "red.400"}>
+            {isOnline ? "Online" : "Offline"}
           </Text>
         </Flex>
       </Flex>

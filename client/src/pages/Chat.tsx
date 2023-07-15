@@ -70,9 +70,13 @@ export default function Chat() {
     // socket.current.on('accept-incoming-call', ({ id }) => {
     //   const sendUserSocket=
     // })
+    const handleTabClose = () => {
+      socket.current?.emit("user-offline", user.id);
+    };
+    window.addEventListener("beforeunload", handleTabClose);
 
     return () => {
-      socket.current?.emit("user-offline", user.id);
+      window.removeEventListener("beforeunload", handleTabClose);
       socket.current?.disconnect();
     };
   }, [user]);
