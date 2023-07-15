@@ -8,6 +8,7 @@ import multer, { Multer } from "multer";
 import { renameSync } from "fs";
 import { User } from "../models/user";
 import { currentUser } from "../middlewares/current-user";
+import { rateLimiter } from "../middlewares/rate-limiter";
 
 declare namespace Express {
   export interface Request {
@@ -16,39 +17,6 @@ declare namespace Express {
 }
 
 const router = express.Router();
-
-router.post(
-  "/send-message",
-  [
-    body("message").notEmpty().withMessage("You must provide a message"),
-    body("sender").trim().notEmpty().withMessage("You must provide a sender"),
-    body("receiver").trim().notEmpty().withMessage("You must provide a sender"),
-  ],
-  validateRequest,
-  async (req: Request, res: Response) => {
-    const { message, sender, receiver } = req.body;
-    const isUserOnline = await redisClient.sIsMember("onlineUsers", sender);
-    const savedMessage = Message.build({
-      message,
-      sender,
-      receiver,
-      type: "text",
-      messageStatus: isUserOnline ? "delivered" : "sent",
-    });
-    await savedMessage.save();
-
-    const senderUser = await User.findById(savedMessage.sender);
-    const receiverUser = await User.findById(savedMessage.receiver);
-    if (senderUser && receiverUser) {
-      senderUser.sentMessages?.push(savedMessage);
-      receiverUser.receivedMessages?.push(savedMessage);
-      await senderUser.save();
-      await receiverUser.save();
-    }
-
-    res.status(201).json(savedMessage);
-  }
-);
 
 router.get(
   "/get-messages/:sender/:receiver",
@@ -91,10 +59,44 @@ router.get(
   }
 );
 
+router.post(
+  "/send-message",
+  rateLimiter({ secondsWindow: 60, allowedHits: 5 }),
+  [
+    body("message").notEmpty().withMessage("You must provide a message"),
+    body("sender").trim().notEmpty().withMessage("You must provide a sender"),
+    body("receiver").trim().notEmpty().withMessage("You must provide a sender"),
+  ],
+  validateRequest,
+  async (req: Request, res: Response) => {
+    const { message, sender, receiver } = req.body;
+    const isUserOnline = await redisClient.sIsMember("onlineUsers", sender);
+    const savedMessage = Message.build({
+      message,
+      sender,
+      receiver,
+      type: "text",
+      messageStatus: isUserOnline ? "delivered" : "sent",
+    });
+    await savedMessage.save();
+
+    const senderUser = await User.findById(savedMessage.sender);
+    const receiverUser = await User.findById(savedMessage.receiver);
+    if (senderUser && receiverUser) {
+      senderUser.sentMessages?.push(savedMessage);
+      receiverUser.receivedMessages?.push(savedMessage);
+      await senderUser.save();
+      await receiverUser.save();
+    }
+
+    res.status(201).json(savedMessage);
+  }
+);
+
 const uploadImages = multer({ dest: "uploads/images" });
 router.post(
   "/send-image-message",
-
+  rateLimiter({ secondsWindow: 60, allowedHits: 5 }),
   uploadImages.single("image"),
   async (req: Request, res: Response) => {
     if (req.file) {
@@ -130,7 +132,7 @@ router.post(
 const uploadRecordings = multer({ dest: "uploads/recordings" });
 router.post(
   "/send-audio-message",
-
+  rateLimiter({ secondsWindow: 60, allowedHits: 5 }),
   uploadRecordings.single("audio"),
   async (req: Request, res: Response) => {
     if (req.file) {
