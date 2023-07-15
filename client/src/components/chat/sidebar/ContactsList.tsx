@@ -1,4 +1,10 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  SkeletonCircle,
+  SkeletonText,
+  Text,
+} from "@chakra-ui/react";
 import { useAllUsers } from "../../../api/user/userHooks";
 import { BiArrowBack } from "react-icons/bi";
 import ChatListItem from "./ChatListItem";
@@ -13,7 +19,23 @@ type Props = {
 
 export default function ContactsList({ setContactOpen }: Props) {
   const { allUsers, isLoading } = useAllUsers();
-  if (isLoading || allUsers === undefined) return <></>;
+  if (isLoading || allUsers === undefined) {
+    return (
+      <>
+        {[1, 2, 3, 4].map(() => (
+          <Flex align={"center"} gap={2} padding="6">
+            <SkeletonCircle borderRadius={"50%"} size="12" />
+            <SkeletonText
+              w="80%"
+              noOfLines={1}
+              spacing="4"
+              skeletonHeight="2"
+            />
+          </Flex>
+        ))}
+      </>
+    );
+  }
 
   return (
     <Flex flexDir={"column"} h="full" px={3} py={4} color={"brand.200"}>

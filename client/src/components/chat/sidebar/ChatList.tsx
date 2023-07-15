@@ -1,4 +1,4 @@
-import { Flex } from "@chakra-ui/react";
+import { Flex, SkeletonCircle, SkeletonText } from "@chakra-ui/react";
 import { useGetInitialContacts } from "../../../api/message/messageHooks";
 import ChatListItem from "./ChatListItem";
 
@@ -6,7 +6,23 @@ type Props = {};
 
 export default function ChatList({}: Props) {
   const { data, isLoading } = useGetInitialContacts();
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <>
+        {[1, 2, 3, 4].map(() => (
+          <Flex align={"center"} gap={2} padding="6">
+            <SkeletonCircle borderRadius={"50%"} size="12" />
+            <SkeletonText
+              w="80%"
+              noOfLines={2}
+              spacing="4"
+              skeletonHeight="2"
+            />
+          </Flex>
+        ))}
+      </>
+    );
+  }
 
   return (
     <Flex
