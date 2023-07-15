@@ -90,7 +90,13 @@ export default function ChatBody() {
             flexDir={"column"}
             key={message.id}
             alignSelf={message.sender === user.id ? "flex-end" : "flex-start"}
-            bg={message.sender === user.id ? "brand.500" : "brand.600"}
+            bg={
+              message.message === "Don't Spam! 😡"
+                ? "red.800"
+                : message.sender === user.id
+                ? "brand.500"
+                : "brand.600"
+            }
             minW={"10rem"}
             borderRadius={"lg"}
             maxW={"45%"}

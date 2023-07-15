@@ -7,11 +7,17 @@ import { Socket } from "socket.io-client";
 export const useSendMessage = (
   socket: React.MutableRefObject<Socket | null>
 ) => {
-  const errorHandler = useErrorHandler();
   const queryClient = useQueryClient();
   const { mutate, isLoading, isSuccess, error } = useMutation(
     async (values: MessageSend) => {
       const api = new API();
+      await queryClient.cancelQueries({
+        queryKey: ["getMessages", values.receiver],
+      });
+      const previousMessages = queryClient.getQueryData([
+        "getMessages",
+        values.receiver,
+      ]);
       queryClient.setQueryData(["getMessages", values.receiver], (old: any) => {
         if (!old) return { messages: [values] };
         return {
@@ -27,17 +33,36 @@ export const useSendMessage = (
         };
       });
       const res = await api.sendMessage(values);
-      return res.data;
+      return { message: res.data, previousMessages };
     },
     {
-      onSuccess: (message) => {
-        socket.current?.emit("message-sent", message);
+      onSuccess: (context) => {
+        socket.current?.emit("message-sent", context?.message);
       },
-      onError: (error) => {
-        errorHandler(error);
+      onError: (_, values) => {
+        queryClient.setQueryData(
+          ["getMessages", values.receiver],
+          (old: any) => {
+            if (!old) return { messages: [{ type: "error" }] };
+            return {
+              messages: [
+                ...old.messages,
+                {
+                  message: "Don't Spam! 😡",
+                  type: "text",
+                  createdAt: new Date(),
+                  id: Math.random(),
+                },
+              ],
+            };
+          }
+        );
       },
-      onSettled: (message) => {
-        queryClient.invalidateQueries(["getMessages", message.receiver]);
+      onSettled: (context) => {
+        queryClient.invalidateQueries([
+          "getMessages",
+          context?.message?.receiver,
+        ]);
       },
     }
   );
@@ -47,7 +72,6 @@ export const useSendMessage = (
 export const useSendImageMessage = (
   socket: React.MutableRefObject<Socket | null>
 ) => {
-  const errorHandler = useErrorHandler();
   const queryClient = useQueryClient();
   const {
     mutate: mutateImage,
@@ -57,6 +81,13 @@ export const useSendImageMessage = (
   } = useMutation(
     async (values: FormData) => {
       const api = new API();
+      await queryClient.cancelQueries({
+        queryKey: ["getMessages", values.get("receiver")!],
+      });
+      const previousMessages = queryClient.getQueryData([
+        "getMessages",
+        values.get("receiver")!,
+      ]);
       queryClient.setQueryData(
         ["getMessages", values.get("receiver")!],
         (old: any) => {
@@ -78,17 +109,36 @@ export const useSendImageMessage = (
         }
       );
       const res = await api.sendImageMessage(values);
-      return res.data;
+      return { message: res.data, previousMessages };
     },
     {
-      onSuccess: (message) => {
-        socket.current?.emit("message-sent", message);
+      onSuccess: (context) => {
+        socket.current?.emit("message-sent", context?.message);
       },
-      onError: (error) => {
-        errorHandler(error);
+      onError: (_, values) => {
+        queryClient.setQueryData(
+          ["getMessages", values.get("receiver")!],
+          (old: any) => {
+            if (!old) return { messages: [{ type: "error" }] };
+            return {
+              messages: [
+                ...old.messages,
+                {
+                  message: "Don't Spam! 😡",
+                  type: "text",
+                  createdAt: new Date(),
+                  id: Math.random(),
+                },
+              ],
+            };
+          }
+        );
       },
-      onSettled: (message) => {
-        queryClient.invalidateQueries(["getMessages", message.receiver]);
+      onSettled: (context) => {
+        queryClient.invalidateQueries([
+          "getMessages",
+          context?.message?.receiver,
+        ]);
       },
     }
   );
@@ -98,11 +148,17 @@ export const useSendImageMessage = (
 export const useSendAudioMessage = (
   socket: React.MutableRefObject<Socket | null>
 ) => {
-  const errorHandler = useErrorHandler();
   const queryClient = useQueryClient();
   const { mutate, isLoading, isSuccess, error } = useMutation(
     async (values: FormData) => {
       const api = new API();
+      await queryClient.cancelQueries({
+        queryKey: ["getMessages", values.get("receiver")!],
+      });
+      const previousMessages = queryClient.getQueryData([
+        "getMessages",
+        values.get("receiver")!,
+      ]);
       queryClient.setQueryData(
         ["getMessages", values.get("receiver")!],
         (old: any) => {
@@ -124,17 +180,36 @@ export const useSendAudioMessage = (
         }
       );
       const res = await api.sendAudioMessage(values);
-      return res.data;
+      return { message: res.data, previousMessages };
     },
     {
-      onSuccess: (message) => {
-        socket.current?.emit("message-sent", message);
+      onSuccess: (context) => {
+        socket.current?.emit("message-sent", context?.message);
       },
-      onError: (error) => {
-        errorHandler(error);
+      onError: (_, values) => {
+        queryClient.setQueryData(
+          ["getMessages", values.get("receiver")!],
+          (old: any) => {
+            if (!old) return { messages: [{ type: "error" }] };
+            return {
+              messages: [
+                ...old.messages,
+                {
+                  message: "Don't Spam! 😡",
+                  type: "text",
+                  createdAt: new Date(),
+                  id: Math.random(),
+                },
+              ],
+            };
+          }
+        );
       },
-      onSettled: (message) => {
-        queryClient.invalidateQueries(["getMessages", message.receiver]);
+      onSettled: (context) => {
+        queryClient.invalidateQueries([
+          "getMessages",
+          context?.message?.receiver,
+        ]);
       },
     }
   );
