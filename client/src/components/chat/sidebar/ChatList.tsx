@@ -9,8 +9,8 @@ export default function ChatList({}: Props) {
   if (isLoading) {
     return (
       <>
-        {[1, 2, 3, 4].map(() => (
-          <Flex align={"center"} gap={2} padding="6">
+        {[1, 2, 3, 4].map((i) => (
+          <Flex key={i} align={"center"} gap={2} padding="6">
             <SkeletonCircle borderRadius={"50%"} size="12" />
             <SkeletonText
               w="80%"
