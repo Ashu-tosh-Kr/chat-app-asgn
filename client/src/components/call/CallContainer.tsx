@@ -41,39 +41,37 @@ export default function CallContainer({ data }: Props) {
             import.meta.env.VITE_ZEGO_SERVER_SECRET
           );
           setZgVar(zg);
-          zg.on(
-            "roomStreamUpdate",
-            async (roomID, updateType, streamList, extendedData) => {
-              if (updateType === "ADD") {
-                const rmVideo = document.getElementById("remote-video");
-                const vd = document.createElement(
-                  data?.callType === "video" ? "video" : "audio"
-                );
-                vd.id = streamList[0].streamID;
-                vd.autoplay = true;
-                vd.playsInline = true;
-                vd.muted = false;
-                if (rmVideo) {
-                  rmVideo.appendChild(vd);
-                }
-                zg.startPlayingStream(streamList[0].streamID, {
-                  audio: true,
-                  video: true,
-                }).then((stream) => (vd.srcObject = stream));
-              } else if (
-                updateType === "DELETE" &&
-                zg &&
-                localStream &&
-                streamList[0].streamID
-              ) {
-                zg.destroyStream(localStream);
-                zg.stopPublishingStream(streamList[0].streamID);
-                zg.logoutRoom(data?.roomId?.toString());
-                setVideoCall(undefined);
-                setVoiceCall(undefined);
+          zg.on("roomStreamUpdate", async (_, updateType, streamList, __) => {
+            if (updateType === "ADD") {
+              const rmVideo = document.getElementById("remote-video");
+              const vd = document.createElement(
+                data?.callType === "video" ? "video" : "audio"
+              );
+              vd.id = streamList[0].streamID;
+              vd.autoplay = true;
+              //@ts-ignore
+              vd.playsInline = true;
+              vd.muted = false;
+              if (rmVideo) {
+                rmVideo.appendChild(vd);
               }
+              zg.startPlayingStream(streamList[0].streamID, {
+                audio: true,
+                video: true,
+              }).then((stream) => (vd.srcObject = stream));
+            } else if (
+              updateType === "DELETE" &&
+              zg &&
+              localStream &&
+              streamList[0].streamID
+            ) {
+              zg.destroyStream(localStream);
+              zg.stopPublishingStream(streamList[0].streamID);
+              zg.logoutRoom(data?.roomId?.toString());
+              setVideoCall(undefined);
+              setVoiceCall(undefined);
             }
-          );
+          });
           console.log(token);
 
           await zg.loginRoom(
@@ -98,6 +96,7 @@ export default function CallContainer({ data }: Props) {
           videoElement.style.width = "5rem";
           videoElement.autoplay = true;
           videoElement.muted = false;
+          //@ts-ignore
           videoElement.playsInline = true;
           localVideo?.appendChild(videoElement);
           const td = document.getElementById(
