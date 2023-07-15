@@ -1,5 +1,14 @@
-import { Avatar, Flex } from "@chakra-ui/react";
+import {
+  Avatar,
+  Flex,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+} from "@chakra-ui/react";
+import axios from "axios";
 import { BsThreeDotsVertical, BsFillChatLeftTextFill } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
 type Props = {
   setContactOpen: {
     on: () => void;
@@ -10,6 +19,13 @@ type Props = {
 
 export default function ChatListHeader({ setContactOpen }: Props) {
   const user = JSON.parse(localStorage.getItem("user")!);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    localStorage.removeItem("user");
+    await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/signout`);
+    navigate("/login");
+  };
 
   return (
     <Flex
@@ -21,15 +37,29 @@ export default function ChatListHeader({ setContactOpen }: Props) {
       bg={"brand.500"}
       borderTopLeftRadius={"lg"}
     >
-      <Avatar
-        src={`https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=${user.username}`}
-      />
-      <Flex color="brand.200" gap={6}>
+      <Popover placement="left">
+        <PopoverTrigger>
+          <Avatar
+            cursor={"pointer"}
+            src={`https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=${user.username}`}
+          />
+        </PopoverTrigger>
+        <PopoverContent
+          bg={"brand.700"}
+          color={"brand.200"}
+          w={28}
+          onClick={handleLogout}
+        >
+          <PopoverBody cursor={"pointer"}>Log Out</PopoverBody>
+        </PopoverContent>
+      </Popover>
+      <Flex color="brand.200" gap={6} position={"relative"}>
         <BsFillChatLeftTextFill
           cursor="pointer"
           onClick={setContactOpen.on}
           title="New Chat"
         />
+
         <BsThreeDotsVertical cursor="pointer" title="Menu" />
       </Flex>
       {/* </Flex> */}

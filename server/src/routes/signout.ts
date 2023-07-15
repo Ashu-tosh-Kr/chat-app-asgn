@@ -3,7 +3,7 @@ import express from "express";
 const router = express.Router();
 
 router.get("/api/signout", (req, res) => {
-  req.session = null;
+  req.cookies = null;
   res.send({});
 });
 
