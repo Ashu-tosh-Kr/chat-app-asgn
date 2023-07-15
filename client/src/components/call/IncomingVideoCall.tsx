@@ -7,8 +7,13 @@ type Props = {
 };
 
 export default function IncomingVideoCall({ incomingVideoCall }: Props) {
-  const { setVideoCall, setIncomingVideoCall, socket } = useChatContext();
+  const { setVideoCall, setIncomingVideoCall, setCurrentChatUser, socket } =
+    useChatContext();
   const acceptCall = () => {
+    setCurrentChatUser({
+      username: incomingVideoCall.name,
+      id: incomingVideoCall.id,
+    });
     setVideoCall({
       ...incomingVideoCall,
       type: "in-coming",
