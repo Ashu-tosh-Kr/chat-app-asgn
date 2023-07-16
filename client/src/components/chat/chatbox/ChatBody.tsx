@@ -40,13 +40,13 @@ export default function ChatBody() {
   }, [socket.current]);
 
   //auto scroll to bottom
-  const scrollToLastFruit = () => {
+  const scrollToLast = () => {
     const lastChildElement = ref.current?.lastElementChild;
     lastChildElement?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
-    scrollToLastFruit();
+    scrollToLast();
   }, [messages]);
 
   if (isLoading)
