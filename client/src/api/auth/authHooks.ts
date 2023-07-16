@@ -49,25 +49,3 @@ export const useRegister = () => {
   );
   return { mutate, isLoading, isSuccess, error };
 };
-
-export const useSignout = () => {
-  const errorHandler = useErrorHandler();
-  const navigate = useNavigate();
-  const { mutate, isLoading, isSuccess, error } = useMutation(
-    async () => {
-      const api = new API();
-      const res = await api.signout();
-      return res.data.data;
-    },
-    {
-      onSuccess: () => {
-        localStorage.clear();
-        navigate("/login");
-      },
-      onError: (error) => {
-        errorHandler(error);
-      },
-    }
-  );
-  return { mutate, isLoading, isSuccess, error };
-};

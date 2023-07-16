@@ -7,12 +7,12 @@ import path from "path";
 import { errorHandler } from "./middlewares/error-handler";
 import { NotFoundError } from "./errors/not-found-error";
 import { userRouter } from "./routes/user";
-import { signInRouter } from "./routes/signin";
-import { signOutRouter } from "./routes/signout";
-import { signUpRouter } from "./routes/signup";
 import cors from "cors";
 import { messageRouter } from "./routes/message";
 import { Server } from "socket.io";
+import { currentUser } from "./middlewares/current-user";
+import { requireAuth } from "./middlewares/require-auth";
+import { authRouter } from "./routes/auth";
 
 const app = express();
 
@@ -115,11 +115,9 @@ app.use(
   express.static(path.join(__dirname + "/../uploads/recordings/"))
 );
 
-app.use(userRouter);
-app.use(signInRouter);
-app.use(signOutRouter);
-app.use(signUpRouter);
-app.use("/api/messages", messageRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/users", currentUser, requireAuth, userRouter);
+app.use("/api/messages", currentUser, requireAuth, messageRouter);
 
 app.all("*", () => {
   throw new NotFoundError();

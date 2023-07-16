@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 interface UserPayload {
   id: string;
   email: string;
+  username: string;
 }
 
 declare global {
@@ -18,13 +19,13 @@ export const currentUser = (
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.session?.jwt) return next();
+  const token = req.header("Authorization")?.replace("Bearer ", "");
+  if (!token) return next();
+
   try {
-    const payload = jwt.verify(
-      req.cookies.jwt,
-      process.env.JWT_KEY!
-    ) as UserPayload;
-    req.currentUser = payload;
+    const decoded = jwt.verify(token, process.env.JWT_KEY!);
+    req.currentUser = decoded as UserPayload; // Store the decoded user ID in the request object for future use
   } catch (err) {}
+
   next();
 };

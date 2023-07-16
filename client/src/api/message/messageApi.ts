@@ -5,7 +5,10 @@ export default class API {
   instance: any;
   constructor() {
     this.instance = axios.create({
-      baseURL: `${"http://localhost:5000"}/api/messages`,
+      baseURL: `${import.meta.env.VITE_SERVER_URL}/api/messages`,
+      headers: {
+        Authorization: JSON.parse(localStorage.getItem("user")!)?.access_token,
+      },
     });
   }
 
@@ -29,7 +32,6 @@ export default class API {
   }
 
   getInitialContacts() {
-    const user = JSON.parse(localStorage.getItem("user")!);
-    return this.instance.get(`/get-initial-contacts/${user.id}`);
+    return this.instance.get(`/get-initial-contacts`);
   }
 }

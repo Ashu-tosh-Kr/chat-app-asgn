@@ -5,7 +5,7 @@ export default class API {
   instance: any;
   constructor() {
     this.instance = axios.create({
-      baseURL: `${"http://localhost:5000"}/api`,
+      baseURL: `${import.meta.env.VITE_SERVER_URL}/api/auth`,
     });
   }
 
@@ -15,8 +15,5 @@ export default class API {
   }
   register(body: UserRegister) {
     return this.instance.post("/register", body);
-  }
-  signout() {
-    return this.instance.get("/signout");
   }
 }
