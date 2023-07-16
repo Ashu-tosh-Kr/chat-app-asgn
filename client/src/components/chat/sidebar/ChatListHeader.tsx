@@ -6,7 +6,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@chakra-ui/react";
-import axios from "axios";
 import { BsThreeDotsVertical, BsFillChatLeftTextFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 type Props = {
@@ -23,7 +22,6 @@ export default function ChatListHeader({ setContactOpen }: Props) {
 
   const handleLogout = async () => {
     localStorage.removeItem("user");
-    await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/signout`);
     navigate("/login");
   };
 
