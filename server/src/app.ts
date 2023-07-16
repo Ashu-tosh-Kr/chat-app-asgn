@@ -89,6 +89,41 @@ io.on("connection", (socket) => {
       socket.to(sendUserSocket).emit("accept-call");
     }
   });
+
+  //rooms logic
+  socket.on("join-everybody", async () => {
+    socket.join("everybody");
+    const stringifiedMessages = await redisClient.lRange("messages", 0, -1);
+    const messages = stringifiedMessages.map((msg) => JSON.parse(msg));
+    socket.emit("everybody-msg-history", messages);
+  });
+  socket.on("everybody-msg-send", async (msg) => {
+    const rateLimitKey = `rate-limit:${socket.id}`;
+
+    const requests = await redisClient.incr(rateLimitKey);
+
+    if (requests === 1) {
+      await redisClient.expire(rateLimitKey, 60);
+    }
+
+    if (requests > 5) {
+      socket.emit("everybody-msg-received", {
+        ...msg,
+        message: "Don't Spam! 😡",
+        sender: "****",
+        senderName: "BOT",
+      });
+    } else {
+      redisClient.rPush("messages", JSON.stringify(msg));
+      const messages = await redisClient.lRange("messages", 0, -1);
+
+      // Keep only the latest 50 messages
+      if (messages.length > 50) {
+        await redisClient.lTrim("messages", -50, -1);
+      }
+      io.to("everybody").emit("everybody-msg-received", msg);
+    }
+  });
 });
 
 export const redisClient = redis.createClient({

@@ -69,6 +69,7 @@ export type ChatContextType = {
   setVideoCall: (voiceCall: VideoCallType) => void;
   setIncomingVideoCall: (incomingVideoCall: IncomingVideoCallType) => void;
   setIncomingVoiceCall: (incomingVoiceCall: IncomingVoiceCallType) => void;
+  setGroupChat: (data: boolean) => void;
 };
 
 export type ChatContextTypeInsideChatContainer = ChatContextType & {

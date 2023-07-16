@@ -22,7 +22,13 @@ beforeAll(async () => {
   mongo = await MongoMemoryServer.create();
   const mongoUri = mongo.getUri();
   await mongoose.connect(mongoUri, {});
+});
 
+beforeEach(async () => {
+  const connections = await mongoose.connection.db.collections();
+  for (let collection of connections) {
+    await collection.deleteMany({});
+  }
   const keys = await redisClient.keys("*");
 
   if (keys.length === 0) {
@@ -31,13 +37,6 @@ beforeAll(async () => {
   }
 
   await redisClient.del(keys);
-});
-
-beforeEach(async () => {
-  const connections = await mongoose.connection.db.collections();
-  for (let collection of connections) {
-    await collection.deleteMany({});
-  }
 });
 
 afterAll(async () => {

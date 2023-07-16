@@ -16,6 +16,7 @@ import VoiceCall from "../components/call/VoiceCall";
 import VideoCall from "../components/call/VideoCall";
 import IncomingVoiceCall from "../components/call/IncomingVoiceCall";
 import IncomingVideoCall from "../components/call/IncomingVideoCall";
+import GroupChatContainer from "../components/chat/groupchat/GroupChatContainer";
 
 const ChatContext = createContext<ChatContextType>({
   currentChatUser: undefined,
@@ -25,6 +26,7 @@ const ChatContext = createContext<ChatContextType>({
   setVideoCall: () => {},
   setIncomingVideoCall: () => {},
   setIncomingVoiceCall: () => {},
+  setGroupChat: () => {},
 });
 export const useChatContext = () => useContext(ChatContext);
 
@@ -38,6 +40,7 @@ export default function Chat() {
   const [incomingVoiceCall, setIncomingVoiceCall] =
     useState<IncomingVoiceCallType>();
   const [voiceCall, setVoiceCall] = useState<VoiceCallType>();
+  const [groupChat, setGroupChat] = useState(false);
 
   // Socket
   const socket = useRef<Socket | null>(null);
@@ -91,6 +94,7 @@ export default function Chat() {
         setVideoCall,
         setIncomingVideoCall,
         setIncomingVoiceCall,
+        setGroupChat,
       }}
     >
       {incomingVideoCall && (
@@ -128,7 +132,13 @@ export default function Chat() {
           >
             <ChatSidebar />
             <Divider borderColor={"brand.500"} orientation="vertical" />
-            {!currentChatUser ? <WelcomeRobo /> : <ChatContainer />}
+            {groupChat ? (
+              <GroupChatContainer />
+            ) : !currentChatUser ? (
+              <WelcomeRobo />
+            ) : (
+              <ChatContainer />
+            )}
           </Flex>
         </Flex>
       )}
