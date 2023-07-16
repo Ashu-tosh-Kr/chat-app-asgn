@@ -14,12 +14,9 @@ export function rateLimiter({
     const ip: any = req.socket.remoteAddress;
 
     const requests = await redisClient.incr(ip);
-    let ttl;
+
     if (requests === 1) {
       await redisClient.expire(ip, secondsWindow);
-      ttl = 60;
-    } else {
-      ttl = await redisClient.ttl(ip);
     }
 
     if (requests > allowedHits) {
