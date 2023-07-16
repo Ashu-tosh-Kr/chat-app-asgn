@@ -8,7 +8,7 @@ import {
 import { useChatContext } from "../../../pages/Chat";
 import { calculateTime } from "../../../utils/CalculateTime";
 import MessageStatus from "./MessageStatus";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useQueryClient } from "react-query";
 import VoiceMessage from "./VoiceMessage";
 
@@ -17,6 +17,7 @@ export default function ChatBody() {
     useChatContext() as ChatContextTypeInsideChatContainer;
   const user: User = JSON.parse(localStorage.getItem("user")!);
   const queryClient = useQueryClient();
+  const ref = useRef<HTMLDivElement | null>(null);
 
   const { messages, isLoading } = useGetMessages({
     sender: user.id,
@@ -37,6 +38,16 @@ export default function ChatBody() {
       socket.current?.off("message-received");
     };
   }, [socket.current]);
+
+  //auto scroll to bottom
+  const scrollToLastFruit = () => {
+    const lastChildElement = ref.current?.lastElementChild;
+    lastChildElement?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToLastFruit();
+  }, [messages]);
 
   if (isLoading)
     return (
@@ -87,6 +98,7 @@ export default function ChatBody() {
           },
         }}
         overflowY={"auto"}
+        ref={ref}
       >
         {messages?.messages?.map((message) => (
           <Flex
