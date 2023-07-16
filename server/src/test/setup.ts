@@ -1,10 +1,18 @@
 import request from "supertest";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
-import { app } from "../app";
+import { app, redisClient } from "../app";
 
 declare global {
-  var signin: () => Promise<string[]>;
+  var signin: (
+    email?: string,
+    password?: string
+  ) => Promise<{
+    id: string;
+    email: string;
+    username: string;
+    access_token: string;
+  }>;
 }
 
 let mongo: any;
@@ -14,6 +22,15 @@ beforeAll(async () => {
   mongo = await MongoMemoryServer.create();
   const mongoUri = mongo.getUri();
   await mongoose.connect(mongoUri, {});
+
+  const keys = await redisClient.keys("*");
+
+  if (keys.length === 0) {
+    console.log("No IP addresses found in Redis.");
+    return;
+  }
+
+  await redisClient.del(keys);
 });
 
 beforeEach(async () => {
@@ -30,14 +47,15 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
-global.signin = async () => {
+global.signin = async (email = "t@test.com", password = "password") => {
   const response = await request(app)
-    .post("/api/users/signup")
+    .post("/api/auth/register")
     .send({
-      email: "test@test.com",
-      password: "password",
+      email,
+      password,
     })
     .expect(201);
-  const cookie = response.get("Set-Cookie");
-  return cookie;
+
+  const user = response.body;
+  return user;
 };
