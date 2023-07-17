@@ -18,20 +18,35 @@ export const useSendMessage = (
         "getMessages",
         values.receiver,
       ]);
-      queryClient.setQueryData(["getMessages", values.receiver], (old: any) => {
-        if (!old) return { messages: [values] };
-        return {
-          messages: [
-            ...old.messages,
-            {
-              ...values,
-              type: "text",
-              createdAt: new Date(),
-              id: Math.random(),
-            },
-          ],
-        };
-      });
+      queryClient.setQueryData(
+        ["getMessages", values.receiver],
+        (old: { messages: Message[] } | undefined) => {
+          // had to do this stop ts from throwing error
+          const messageType: "text" = "text";
+          if (!old)
+            return {
+              messages: [
+                {
+                  ...values,
+                  id: `${Math.random()}`,
+                  type: messageType,
+                  createdAt: new Date(),
+                },
+              ],
+            };
+          return {
+            messages: [
+              ...old.messages,
+              {
+                ...values,
+                id: `${Math.random()}`,
+                type: messageType,
+                createdAt: new Date(),
+              },
+            ],
+          };
+        }
+      );
       const res = await api.sendMessage(values);
       return { message: res.data, previousMessages };
     },
@@ -42,16 +57,32 @@ export const useSendMessage = (
       onError: (_, values) => {
         queryClient.setQueryData(
           ["getMessages", values.receiver],
-          (old: any) => {
-            if (!old) return { messages: [{ type: "error" }] };
+          (old: { messages: Message[] } | undefined) => {
+            // had to do this stop ts from throwing error
+            const messageType: "text" = "text";
+            if (!old)
+              return {
+                messages: [
+                  {
+                    message: "Don't Spam! 😡",
+                    type: messageType,
+                    createdAt: new Date(),
+                    id: `${Math.random()}`,
+                    sender: "",
+                    receiver: "",
+                  },
+                ],
+              };
             return {
               messages: [
                 ...old.messages,
                 {
                   message: "Don't Spam! 😡",
-                  type: "text",
+                  type: messageType,
                   createdAt: new Date(),
-                  id: Math.random(),
+                  id: `${Math.random()}`,
+                  sender: "",
+                  receiver: "",
                 },
               ],
             };

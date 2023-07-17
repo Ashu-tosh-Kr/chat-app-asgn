@@ -2,6 +2,8 @@ export type User = {
   id: string;
   username: string;
   email: string;
+  sentMessages: Messages[];
+  receivedMessages: Messages[];
 };
 
 export type UserLogin = Pick<User, "email"> & { password: string };

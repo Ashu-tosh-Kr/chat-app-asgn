@@ -9,15 +9,16 @@ import {
   InputRightElement,
   FormHelperText,
 } from "@chakra-ui/react";
+import { FieldError, UseFormRegisterReturn } from "react-hook-form";
 
 type Props = {
   name?: string;
   label?: string;
   required?: boolean;
-  register: any;
-  error: any;
-  leftIcon?: any;
-  rightIcon?: any;
+  register: UseFormRegisterReturn<string>;
+  error: FieldError | undefined;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
   helpertext?: string;
   [x: string]: any;
 };
@@ -52,7 +53,7 @@ const InputField = ({
   };
   return (
     <>
-      <FormControl isRequired={required} isInvalid={error}>
+      <FormControl isRequired={required} isInvalid={!!error}>
         <FormLabel mb={1} fontWeight="none" fontSize={"xs"} htmlFor={name}>
           {label}
         </FormLabel>
