@@ -15,7 +15,7 @@ export default function ChatListItem({
   unreadCount,
   isContactPage = false,
 }: Props) {
-  const { setCurrentChatUser } = useChatContext();
+  const { setCurrentChatUser, setGroupChat } = useChatContext();
 
   return (
     <>
@@ -26,7 +26,10 @@ export default function ChatListItem({
         _hover={{ bg: "brand.700" }}
         gap={2}
         my={2}
-        onClick={() => setCurrentChatUser(user)}
+        onClick={() => {
+          setCurrentChatUser(user);
+          setGroupChat(false);
+        }}
       >
         <Avatar
           src={`https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=${user.username}`}
