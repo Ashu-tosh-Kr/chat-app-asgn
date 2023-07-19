@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { app } from "./app";
 import { config } from "dotenv";
+import { io, onConnection } from "./sockets";
 
 (async () => {
   config();
@@ -14,7 +15,9 @@ import { config } from "dotenv";
   }
   console.log("Connected to MongoDB");
 
-  app.listen(5000, () => {
-    console.log("Listening on port 5000");
+  io.on("connection", onConnection);
+
+  app.listen(process.env.PORT, () => {
+    console.log(`Listening on port ${process.env.PORT}`);
   });
 })();
