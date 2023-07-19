@@ -48,21 +48,24 @@ export default function CaptureAudio({ setShowCaptureAudio }: Props) {
   const { currentChatUser, socket } = useChatContext();
   const user = JSON.parse(localStorage.getItem("user")!);
   const { mutate } = useSendAudioMessage(socket);
+
   const [isRecording, setIsRecording] = useBoolean();
   const [isPlaying, setIsPlaying] = useBoolean();
-  const [recordedAudio, setRecordedAudio] = useState<HTMLAudioElement>();
-  const [waveform, setWaveform] = useState<WaveSurfer | null>(null);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
   const [currentPlayBackTime, setCurrentPlayBackTime] = useState(0);
-  const [renderedAudio, setRenderedAudio] = useState<File>();
+  const [waveform, setWaveform] = useState<WaveSurfer | null>(null);
+  //will store an html audio element, this will allow us to play pause the audio
+  const [htmlAudioElement, setHtmlAudioElement] =
+    useState<HTMLAudioElement | null>(null);
+  // will store the actual audio binary data that can be sent to the backend
+  const [recordedAudio, setRecordedAudio] = useState<Blob>();
 
-  const audioRef = useRef<HTMLAudioElement>(null);
   const waveformRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder>();
 
   useEffect(() => {
-    let interval: any;
+    let interval: NodeJS.Timer;
     if (isRecording) {
       interval = setInterval(() => {
         setRecordingDuration((prev) => {
@@ -82,7 +85,6 @@ export default function CaptureAudio({ setShowCaptureAudio }: Props) {
       cursorColor: "#7ae3c3",
       barWidth: 2,
       height: 25,
-      // url: "https://actions.google.com/sounds/v1/science_fiction/creature_distortion_white_noise.ogg",
     });
     setWaveform(wavesurfer);
     wavesurfer.on("finish", function () {
@@ -102,29 +104,27 @@ export default function CaptureAudio({ setShowCaptureAudio }: Props) {
     setRecordingDuration(0);
     setTotalDuration(0);
     setCurrentPlayBackTime(0);
-    setRecordedAudio(undefined);
+    setHtmlAudioElement(null);
     setIsRecording.on();
+
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
         const mediaRecorder = new MediaRecorder(stream);
         mediaRecorderRef.current = mediaRecorder;
-        audioRef.current!.srcObject = stream;
 
-        const audioChunks: any[] = [];
+        const audioChunks: Blob[] = [];
 
-        mediaRecorder.addEventListener("dataavailable", (event: any) => {
+        mediaRecorder.addEventListener("dataavailable", (event) => {
           audioChunks.push(event.data);
         });
 
         mediaRecorder.addEventListener("stop", () => {
-          const audioBlob = new Blob(audioChunks, {
-            type: "audio/ogg; codecs=opus",
-          });
+          const audioBlob = new Blob(audioChunks, { type: "audio/mp3" });
           const audioUrl = URL.createObjectURL(audioBlob);
-          const audio = new Audio(audioUrl);
           waveform?.load(audioUrl);
-          setRecordedAudio(audio);
+          setRecordedAudio(audioBlob);
+          setHtmlAudioElement(new Audio(audioUrl));
         });
         mediaRecorder.start();
       })
@@ -133,60 +133,41 @@ export default function CaptureAudio({ setShowCaptureAudio }: Props) {
       });
   };
   const handleStopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
+    if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       setIsRecording.off();
-      waveform?.stop();
-
-      const audioChunks: any[] = [];
-
-      mediaRecorderRef.current.addEventListener(
-        "dataavailable",
-        (event: any) => {
-          audioChunks.push(event.data);
-        }
-      );
-
-      mediaRecorderRef.current.addEventListener("stop", () => {
-        const audioBlob = new Blob(audioChunks, { type: "audio/mp3" });
-        const audioFile = new File([audioBlob], "recording.mp3");
-        setRenderedAudio(audioFile);
-      });
     }
   };
 
   useEffect(() => {
-    if (recordedAudio) {
+    if (htmlAudioElement) {
       const updatePlaybackTime = () =>
-        setCurrentPlayBackTime(recordedAudio.currentTime);
-      recordedAudio.addEventListener("timeupdate", updatePlaybackTime);
+        setCurrentPlayBackTime(htmlAudioElement.currentTime);
+      htmlAudioElement.addEventListener("timeupdate", updatePlaybackTime);
       return () => {
-        recordedAudio.removeEventListener("timeupdate", updatePlaybackTime);
+        htmlAudioElement.removeEventListener("timeupdate", updatePlaybackTime);
       };
     }
-  }, [renderedAudio]);
+  }, [recordedAudio]);
 
   const handlePlayRecording = () => {
-    if (recordedAudio) {
-      waveform?.stop();
+    if (htmlAudioElement) {
       waveform?.play();
-
-      recordedAudio?.play();
+      htmlAudioElement.play();
       setIsPlaying.on();
     }
   };
 
   const handlePauseRecording = () => {
-    waveform?.stop();
-    recordedAudio?.pause();
+    waveform?.pause();
+    htmlAudioElement?.pause();
     setIsPlaying.off();
   };
 
   const handleUpload = async () => {
-    if (renderedAudio) {
+    if (recordedAudio) {
       const formData = new FormData();
-      formData.append("audio", renderedAudio);
-
+      formData.append("audio", recordedAudio);
       formData.append("sender", user.id);
       formData.append("receiver", currentChatUser?.id!);
 
@@ -196,7 +177,7 @@ export default function CaptureAudio({ setShowCaptureAudio }: Props) {
 
   return (
     <Flex align={"center"} justify={"flex-end"} gap={2} w="full">
-      <FaTrash onClick={setShowCaptureAudio.off} />
+      <FaTrash cursor={"pointer"} onClick={setShowCaptureAudio.off} />
       <Flex
         py={2}
         px={4}
@@ -223,7 +204,7 @@ export default function CaptureAudio({ setShowCaptureAudio }: Props) {
           </Flex>
         ) : (
           <div className="">
-            {recordedAudio && (
+            {htmlAudioElement && (
               <>
                 {!isPlaying ? (
                   <FaPlay cursor={"pointer"} onClick={handlePlayRecording} />
@@ -240,13 +221,12 @@ export default function CaptureAudio({ setShowCaptureAudio }: Props) {
           ref={waveformRef}
           hidden={isRecording}
         />
-        {recordedAudio && isPlaying && (
+        {htmlAudioElement && isPlaying && (
           <span>{formatTime(currentPlayBackTime)}</span>
         )}
-        {recordedAudio && !isPlaying && (
+        {htmlAudioElement && !isPlaying && (
           <span>{formatTime(totalDuration)}</span>
         )}
-        <audio hidden ref={audioRef} />
       </Flex>
       <Box mr={4} color={"red.400"}>
         {!isRecording ? (
