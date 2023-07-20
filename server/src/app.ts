@@ -19,7 +19,7 @@ const app = express();
 const server = http.createServer(app);
 
 export const redisClient = redis.createClient({
-  url: "redis://localhost:6379",
+  url: process.env.REDIS_URI,
 });
 (async () => {
   await redisClient.connect();
