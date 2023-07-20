@@ -100,38 +100,37 @@ export default function CaptureAudio({ setShowCaptureAudio }: Props) {
     if (waveform) handleStartRecording();
   }, [waveform]);
 
-  const handleStartRecording = () => {
+  const handleStartRecording = async () => {
     setRecordingDuration(0);
     setTotalDuration(0);
     setCurrentPlayBackTime(0);
     setHtmlAudioElement(null);
     setIsRecording.on();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        const mediaRecorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = mediaRecorder;
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
 
-        const audioChunks: Blob[] = [];
+      const audioChunks: Blob[] = [];
 
-        mediaRecorder.addEventListener("dataavailable", (event) => {
-          audioChunks.push(event.data);
-        });
-
-        mediaRecorder.addEventListener("stop", () => {
-          const audioBlob = new Blob(audioChunks, { type: "audio/mp3" });
-          const audioUrl = URL.createObjectURL(audioBlob);
-          waveform?.load(audioUrl);
-          setRecordedAudio(audioBlob);
-          setHtmlAudioElement(new Audio(audioUrl));
-        });
-        mediaRecorder.start();
-      })
-      .catch((err) => {
-        console.log("Error accessing microphone", err);
+      mediaRecorder.addEventListener("dataavailable", (event) => {
+        audioChunks.push(event.data);
       });
+
+      mediaRecorder.addEventListener("stop", () => {
+        const audioBlob = new Blob(audioChunks, { type: "audio/mp3" });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        waveform?.load(audioUrl);
+        setRecordedAudio(audioBlob);
+        setHtmlAudioElement(new Audio(audioUrl));
+      });
+      mediaRecorder.start();
+    } catch (err) {
+      console.log(err);
+    }
   };
+
   const handleStopRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
