@@ -3,7 +3,7 @@ import { app, redisClient } from "../app";
 
 export const io = new Server(app, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "*",
   },
 });
 
