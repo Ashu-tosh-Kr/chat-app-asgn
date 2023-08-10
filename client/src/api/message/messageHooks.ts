@@ -21,17 +21,15 @@ export const useSendMessage = (
       queryClient.setQueryData(
         ["getMessages", values.receiver],
         (old: { messages: Message[] } | undefined) => {
-          // had to do this stop ts from throwing error
-          const messageType: "text" = "text";
           if (!old)
             return {
               messages: [
                 {
                   ...values,
                   id: `${Math.random()}`,
-                  type: messageType,
+                  type: "text",
                   createdAt: new Date(),
-                },
+                } as const,
               ],
             };
           return {
@@ -40,9 +38,9 @@ export const useSendMessage = (
               {
                 ...values,
                 id: `${Math.random()}`,
-                type: messageType,
+                type: "text",
                 createdAt: new Date(),
-              },
+              } as const,
             ],
           };
         }
@@ -58,19 +56,17 @@ export const useSendMessage = (
         queryClient.setQueryData(
           ["getMessages", values.receiver],
           (old: { messages: Message[] } | undefined) => {
-            // had to do this stop ts from throwing error
-            const messageType: "text" = "text";
             if (!old)
               return {
                 messages: [
                   {
                     message: "Don't Spam! 😡",
-                    type: messageType,
+                    type: "text",
                     createdAt: new Date(),
                     id: `${Math.random()}`,
                     sender: "",
                     receiver: "",
-                  },
+                  } as const,
                 ],
               };
             return {
@@ -78,12 +74,12 @@ export const useSendMessage = (
                 ...old.messages,
                 {
                   message: "Don't Spam! 😡",
-                  type: messageType,
+                  type: "text",
                   createdAt: new Date(),
                   id: `${Math.random()}`,
                   sender: "",
                   receiver: "",
-                },
+                } as const,
               ],
             };
           }
