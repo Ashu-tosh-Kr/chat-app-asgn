@@ -17,16 +17,15 @@ import VideoCall from "../components/call/VideoCall";
 import IncomingVoiceCall from "../components/call/IncomingVoiceCall";
 import IncomingVideoCall from "../components/call/IncomingVideoCall";
 
-const ChatContext = createContext<ChatContextType>({
-  currentChatUser: undefined,
-  setCurrentChatUser: () => {},
-  socket: { current: null },
-  setVoiceCall: () => {},
-  setVideoCall: () => {},
-  setIncomingVideoCall: () => {},
-  setIncomingVoiceCall: () => {},
-});
-export const useChatContext = () => useContext(ChatContext);
+const ChatContext = createContext<ChatContextType | undefined>(undefined);
+export const useChatContext = () => {
+  const context = useContext(ChatContext);
+  //this type guard prevents ts error (x cannot exist on object of type Type | undefined) in all the context consumer components
+  if (!context) {
+    throw new Error("useChatContext must be used within ChatProvider");
+  }
+  return context;
+};
 
 export default function Chat() {
   const user = JSON.parse(localStorage.getItem("user")!);
