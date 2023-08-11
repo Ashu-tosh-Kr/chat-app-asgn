@@ -1,9 +1,11 @@
+import { Socket } from "socket.io-client";
+
 export type User = {
   id: string;
   username: string;
   email: string;
-  sentMessages: Messages[];
-  receivedMessages: Messages[];
+  sentMessages: Message[];
+  receivedMessages: Message[];
 };
 
 export type UserLogin = Pick<User, "email"> & { password: string };
